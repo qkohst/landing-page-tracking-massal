@@ -92,46 +92,6 @@
   }
 
   /**
-   * Back to top button
-   */
-  let backtotop = select(".back-to-top");
-  if (backtotop) {
-    const toggleBacktotop = () => {
-      if (window.scrollY > 100) {
-        backtotop.classList.add("active");
-      } else {
-        backtotop.classList.remove("active");
-      }
-    };
-    window.addEventListener("load", toggleBacktotop);
-    onscroll(document, toggleBacktotop);
-  }
-
-  /**
-   * Mobile nav toggle
-   */
-  on("click", ".mobile-nav-toggle", function (e) {
-    select("#navbar").classList.toggle("navbar-mobile");
-    this.classList.toggle("bi-list");
-    this.classList.toggle("bi-x");
-  });
-
-  /**
-   * Mobile nav dropdowns activate
-   */
-  on(
-    "click",
-    ".navbar .dropdown > a",
-    function (e) {
-      if (select("#navbar").classList.contains("navbar-mobile")) {
-        e.preventDefault();
-        this.nextElementSibling.classList.toggle("dropdown-active");
-      }
-    },
-    true
-  );
-
-  /**
    * Scrool with ofset on links with a class name .scrollto
    */
   on(
@@ -144,9 +104,9 @@
         let navbar = select("#navbar");
         if (navbar.classList.contains("navbar-mobile")) {
           navbar.classList.remove("navbar-mobile");
-          let navbarToggle = select(".mobile-nav-toggle");
-          navbarToggle.classList.toggle("bi-list");
-          navbarToggle.classList.toggle("bi-x");
+          // let navbarToggle = select(".mobile-nav-toggle");
+          // navbarToggle.classList.toggle("bi-list");
+          // navbarToggle.classList.toggle("bi-x");
         }
         scrollto(this.hash);
       }
@@ -187,7 +147,7 @@
         spaceBetween: 20,
       },
 
-      1200: {
+      991: {
         slidesPerView: 3,
         spaceBetween: 20,
       },
@@ -263,5 +223,76 @@
       once: true,
       mirror: false,
     });
+  });
+
+  $(document).ready(function () {
+    setHeightCard();
+    updateTableForMobile();
+  });
+
+  // Panggil fungsi saat jendela diubah ukurannya untuk menangani responsif
+  $(window).resize(function () {
+    updateTableForMobile();
+    setHeightCard();
+  });
+
+  // Fungsi untuk mengubah struktur tabel saat mode mobile
+  function updateTableForMobile() {
+    var screenWidth = $(window).width();
+    if (screenWidth <= 991) {
+      // Loop melalui setiap kolom kecuali kolom pertama di thead
+      $(".table-desktop thead th:not(:first-child)").each(function (index) {
+        // Buat tabel baru untuk setiap kolom, menggabungkan judul kolom sebagai judul baru
+        let newTable = $("<table class='table table-new'></table>");
+        let newThead = $("<thead></thead>").appendTo(newTable);
+        let newTbody = $("<tbody></tbody>").appendTo(newTable);
+        $("<th colspan='2'>" + $(this).text() + "</th>").appendTo(newThead);
+
+        // Loop melalui setiap baris di tbody dan memindahkan isinya ke tabel baru
+        $(".table-desktop tbody tr").each(function () {
+          let newRow = $("<tr></tr>").appendTo(newTbody);
+          $("<td>" + $(this).find("td:first-child").text() + "</td>").appendTo(
+            newRow
+          );
+          $(
+            "<td>" +
+              $(this)
+                .find("td:eq(" + (index + 1) + ")")
+                .text() +
+              "</td>"
+          ).appendTo(newRow);
+        });
+        // Ganti tabel yang lama dengan tabel baru
+        $(this).closest(".table-container").append(newTable);
+      });
+      $(".table-desktop").hide();
+    } else {
+      $(".table-desktop").show();
+      $(".table-new").remove();
+    }
+  }
+
+  function setHeightCard() {
+    var screenWidth = $(window).width();
+    if (screenWidth >= 991) {
+      var maxHeight = Math.max.apply(
+        null,
+        $(".fitur .card")
+          .map(function () {
+            return $(this).height();
+          })
+          .get()
+      );
+      $(".fitur .card").height(maxHeight);
+    }
+  }
+
+  $(document).on("click", ".mobile-nav-toggle", function () {
+    let navbar = $("#navbar");
+    if (navbar.hasClass("navbar-mobile")) {
+      navbar.removeClass("navbar-mobile");
+    } else {
+      navbar.addClass("navbar-mobile");
+    }
   });
 })();
